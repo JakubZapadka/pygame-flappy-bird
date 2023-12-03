@@ -1,6 +1,7 @@
 # Example file showing a circle moving on screen
 import pygame
 import sys
+import random
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -16,7 +17,8 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load(image_path)
         self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
+        self.rect.x = x
+        self.rect.y = y
 
 # Obstacle class
 class Obstacle(pygame.sprite.Sprite):
@@ -24,7 +26,11 @@ class Obstacle(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load(image_path)
         self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
+        self.rect.x = x
+        self.rect.y = y
+
+    def set_position(self, new_x, new_y):
+        self.rect.topleft = (new_x, new_y)
 
 # Game over function
 def game_over():
@@ -40,11 +46,13 @@ def game_over():
 
 player = Player('assets/images/bird1.png', screen.get_width() / 2, screen.get_height() / 2)
 
-obstacle = Obstacle('assets/images/pipe.png', 200, 200)
+#obstacle = Obstacle('assets/images/pipe.png', screen.get_width(), 200)
+showing_speed = 60*5
+space_between_obstacles = 200
 
 # Create sprite groups and add sprites to them
-all_sprites = pygame.sprite.Group(player, obstacle)
-obstacles_group = pygame.sprite.Group(obstacle)
+all_sprites = pygame.sprite.Group(player)
+obstacles_group = pygame.sprite.Group()
 
 while running:
     # poll for events
@@ -56,8 +64,34 @@ while running:
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("purple")
 
+    # Change the x position of the obst])
+    #print(obstacle.rect.topleft[0])
+    #print(obstacle)
+    move_obstacle_speed = 7
+    for obstacle in obstacles_group:
+        obstacle.set_position(obstacle.rect.topleft[0] - move_obstacle_speed, obstacle.rect.y)
+        if obstacle.rect.x < 0-obstacle.rect.width:
+            # Remove obstacle from sprite groups
+            obstacles_group.remove(obstacle)
+            all_sprites.remove(obstacle)
+
     # Update and draw all sprites
     all_sprites.update()
+
+    # Check if the obstacle is off the left side of the screen
+    showing_speed -= 1
+    if showing_speed < 0:
+        showing_speed = 120
+        random_height = random.randint(0, screen.get_height())
+        obstacle = Obstacle('assets/images/pipe.png', screen.get_width(), random_height+50)
+        print(obstacle.rect.height)
+        obstacle2 = Obstacle('assets/images/pipe.png', screen.get_width(), random_height - space_between_obstacles - obstacle.rect.height)
+        obstacle2.image = pygame.transform.rotate(obstacle2.image, 180)
+        obstacles_group.add(obstacle)
+        all_sprites.add(obstacle)
+        obstacles_group.add(obstacle2)
+        all_sprites.add(obstacle2)
+        print(obstacles_group)
 
     # Check for collisions between player and obstacles
     if pygame.sprite.spritecollide(player, obstacles_group, False):
@@ -70,8 +104,6 @@ while running:
         if player.rect.y > 0:
             player.rect.y -= 300 * dt
     if keys[pygame.K_s]:
-        print(player.rect.y)
-        print(screen.get_height())
         if player.rect.y < screen.get_height() - player.rect.height:
             player.rect.y += 300 * dt
     if keys[pygame.K_a]:
