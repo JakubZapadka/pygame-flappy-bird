@@ -2,6 +2,7 @@
 import pygame
 import sys
 import random
+
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -19,6 +20,28 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.y_speed = 600 * dt  # Y-axis speed for jumping
+        self.tick = 0
+        self.last = 'assets/images/bird1.png'
+
+    def jump(self):
+        # Set the initial jump speed
+        self.y_speed = -300
+
+    def update(self):
+        self.tick += 1
+        if self.tick%15 == 0:
+            if self.y_speed<0:
+                if self.last == 'assets/images/bird1.png':
+                    self.last = 'assets/images/bird3.png'
+                    self.image = pygame.image.load(self.last)
+                else:
+                    self.last = 'assets/images/bird1.png'
+                    self.image = pygame.image.load(self.last)
+
+        # Apply gravity
+        self.y_speed += 600 * dt
+        self.rect.y += self.y_speed * dt
 
 # Obstacle class
 class Obstacle(pygame.sprite.Sprite):
@@ -38,7 +61,7 @@ def game_over():
     game_over_text = font.render("Game Over", True, (255, 255, 255))
     game_over_text_x = screen.get_width() // 2 - game_over_text.get_width()
     game_over_text_y = screen.get_height() // 2 - game_over_text.get_height()
-    screen.blit(game_over_text, game_over_text_x, game_over_text_y)
+    screen.blit(game_over_text, (game_over_text_x, game_over_text_y))
     pygame.display.flip()
     pygame.time.delay(2000)  # Display the game over message for 2 seconds
     pygame.quit()
@@ -46,8 +69,8 @@ def game_over():
 
 player = Player('assets/images/bird1.png', screen.get_width() / 2, screen.get_height() / 2)
 
-#obstacle = Obstacle('assets/images/pipe.png', screen.get_width(), 200)
-showing_speed = 60*5
+# obstacle = Obstacle('assets/images/pipe.png', screen.get_width(), 200)
+showing_speed = 60 * 5
 space_between_obstacles = 200
 
 # Create sprite groups and add sprites to them
@@ -60,17 +83,20 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            # Jump when the spacebar is pressed
+            player.jump()
 
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
+    # fill the screen with a color to wipe away anything from the last frame
+    screen.fill((128, 0, 128))  # Purple color
 
     # Change the x position of the obst])
-    #print(obstacle.rect.topleft[0])
-    #print(obstacle)
+    # print(obstacle.rect.topleft[0])
+    # print(obstacle)
     move_obstacle_speed = 7
     for obstacle in obstacles_group:
         obstacle.set_position(obstacle.rect.topleft[0] - move_obstacle_speed, obstacle.rect.y)
-        if obstacle.rect.x < 0-obstacle.rect.width:
+        if obstacle.rect.x < 0 - obstacle.rect.width:
             # Remove obstacle from sprite groups
             obstacles_group.remove(obstacle)
             all_sprites.remove(obstacle)
@@ -83,7 +109,7 @@ while running:
     if showing_speed < 0:
         showing_speed = 120
         random_height = random.randint(0, screen.get_height())
-        obstacle = Obstacle('assets/images/pipe.png', screen.get_width(), random_height+50)
+        obstacle = Obstacle('assets/images/pipe.png', screen.get_width(), random_height + 50)
         print(obstacle.rect.height)
         obstacle2 = Obstacle('assets/images/pipe.png', screen.get_width(), random_height - space_between_obstacles - obstacle.rect.height)
         obstacle2.image = pygame.transform.rotate(obstacle2.image, 180)
@@ -99,25 +125,11 @@ while running:
 
     all_sprites.draw(screen)
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        if player.rect.y > 0:
-            player.rect.y -= 300 * dt
-    if keys[pygame.K_s]:
-        if player.rect.y < screen.get_height() - player.rect.height:
-            player.rect.y += 300 * dt
-    if keys[pygame.K_a]:
-        if player.rect.x > 0:
-            player.rect.x -= 300 * dt
-    if keys[pygame.K_d]:
-        if player.rect.x < screen.get_width() - player.rect.width:
-            player.rect.x += 300 * dt
-
     # flip() the display to put your work on screen
     pygame.display.flip()
 
     # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
+    # dt is delta time in seconds since the last frame, used for framerate-
     # independent physics.
     dt = clock.tick(60) / 1000
 
