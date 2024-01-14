@@ -20,13 +20,13 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.y_speed = 600 * dt  # Y-axis speed for jumping
+        self.y_speed = 800 * dt  # Y-axis speed for jumping
         self.tick = 0
         self.last = 'assets/images/bird1.png'
 
     def jump(self):
         # Set the initial jump speed
-        self.y_speed = -300
+        self.y_speed = -400
 
     def update(self):
         self.tick += 1
@@ -38,9 +38,11 @@ class Player(pygame.sprite.Sprite):
                 else:
                     self.last = 'assets/images/bird1.png'
                     self.image = pygame.image.load(self.last)
+            else:
+                self.image = pygame.image.load('assets/images/bird2.png')
 
         # Apply gravity
-        self.y_speed += 600 * dt
+        self.y_speed += 800 * dt
         self.rect.y += self.y_speed * dt
 
 # Obstacle class
@@ -70,8 +72,8 @@ def game_over():
 player = Player('assets/images/bird1.png', screen.get_width() / 2, screen.get_height() / 2)
 
 # obstacle = Obstacle('assets/images/pipe.png', screen.get_width(), 200)
-showing_speed = 60 * 5
-space_between_obstacles = 200
+showing_speed = 60 * 1.5
+space_between_obstacles = 150
 
 # Create sprite groups and add sprites to them
 all_sprites = pygame.sprite.Group(player)
@@ -107,10 +109,10 @@ while running:
     # Check if the obstacle is off the left side of the screen
     showing_speed -= 1
     if showing_speed < 0:
-        showing_speed = 120
-        random_height = random.randint(0, screen.get_height())
-        obstacle = Obstacle('assets/images/pipe.png', screen.get_width(), random_height + 50)
-        print(obstacle.rect.height)
+        showing_speed = 90
+        random_height = random.randint(space_between_obstacles, screen.get_height())
+        obstacle = Obstacle('assets/images/pipe.png', screen.get_width(), random_height)
+        print(random_height)
         obstacle2 = Obstacle('assets/images/pipe.png', screen.get_width(), random_height - space_between_obstacles - obstacle.rect.height)
         obstacle2.image = pygame.transform.rotate(obstacle2.image, 180)
         obstacles_group.add(obstacle)
