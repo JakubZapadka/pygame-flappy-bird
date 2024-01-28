@@ -1,5 +1,6 @@
 # Example file showing a circle moving on screen
 import pygame
+import pygame.mixer
 import sys
 import random
 
@@ -12,6 +13,21 @@ dt = 0
 
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
+# Set up the mixer and load music
+pygame.mixer.init()
+pygame.mixer.music.set_volume(0.1)
+pygame.mixer.music.load('assets/sfx/Battery.mp3')# Tu dajesz ścieżkę do muzy z assetów
+pygame.mixer.music.play(-1)
+pygame.time.delay(10)
+print(pygame.mixer.music.get_pos())
+
+# Load sound effects with adjusted volumes
+jump_sound = pygame.mixer.Sound('assets/sfx/sfx_wing.mp3') #Tu dajesz ścieżkę do dzwięku z assetów
+jump_sound.set_volume(0.3)
+hit_sound = pygame.mixer.Sound('assets/sfx/sfx_die.mp3') #Tu dajesz ścieżkę do dzwięku z assetów
+hit_sound.set_volume(0.3)
+score_sound = pygame.mixer.Sound('assets/sfx/sfx_point.mp3') #Tu dajesz ścieżkę do dzwięku z assetów
+score_sound.set_volume(0.3)
 # Player class
 class Player(pygame.sprite.Sprite):
     def __init__(self, image_path, x, y):
@@ -59,6 +75,7 @@ class Obstacle(pygame.sprite.Sprite):
 
 # Game over function
 def game_over():
+    hit_sound.play()
     font = pygame.font.Font(None, 74)
     game_over_text = font.render("Game Over", True, (255, 255, 255))
     game_over_text_x = screen.get_width() // 2 - game_over_text.get_width()
@@ -69,7 +86,7 @@ def game_over():
     pygame.quit()
     sys.exit()
 
-player = Player('assets/images/bird1.png', screen.get_width() / 2, screen.get_height() / 2)
+player = Player('assets/images/bird1.png', 100, screen.get_height() / 2)
 
 # obstacle = Obstacle('assets/images/pipe.png', screen.get_width(), 200)
 showing_speed = 60 * 1.5
@@ -88,6 +105,7 @@ while running:
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             # Jump when the spacebar is pressed
             player.jump()
+            jump_sound.play()
 
     # fill the screen with a color to wipe away anything from the last frame
     screen.fill((128, 0, 128))  # Purple color

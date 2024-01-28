@@ -1,9 +1,9 @@
-background moving (images/bg.png),
-music,
-points mechanic,
-menu,
-lose screen/retry screen,
-(assets/images/pipe.png) gimp edit,
+background moving (images/bg.png), - Done
+music, - Done
+points mechanic, - in progress
+menu, - in progress
+lose screen/retry screen, - in progress
+(assets/images/pipe.png) gimp edit, - Done
 
 additional functionals:
     background image day/night random
